@@ -1,0 +1,17 @@
+{
+  "name": "woord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:server": "cd packages/server && npm run dev",
+    "start:client": "cd packages/client && npm start",
+    "dev": "concurrently \"npm run dev:server\" \"npm run start:client\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
