@@ -1,6 +1,5 @@
 import { createClient } from "redis";
 import Room from "./models/Room.js";
-import Player from "./models/Player.js";
 
 class RedisClient {
   constructor() {
@@ -15,7 +14,7 @@ class RedisClient {
     await this.client.connect();
   }
 
-  async createRoom(roomId, value) {
+  async setRoom(roomId, value) {
     await this.client.set(`room:${roomId}`, value);
   }
 
@@ -26,10 +25,6 @@ class RedisClient {
     } else {
       return null;
     }
-  }
-
-  async updateRoom(roomId, value) {
-    await this.client.set(`room:${roomId}`, value);
   }
 
   async deleteRoom(roomId) {

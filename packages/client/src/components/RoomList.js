@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Request from "../utils/Request";
 import { useSocket } from "../contexts/SocketContext";
+import { useUser } from "../contexts/UserContext";
 
 const RoomList = () => {
   const [rooms, setRooms] = useState([]);
   const { socket, connect, emit } = useSocket();
+  const { joinRoom } = useUser();
 
   useEffect(() => {
     Request.get("/api/rooms")
@@ -19,18 +21,28 @@ const RoomList = () => {
       });
   }, []);
 
-  const handleJoinRoom = () => {
-    console.log("Room clicked");
+  const handleJoinRoom = (roomId) => {
+    const username = prompt("Enter your username");
+    Request.post("/api/join-room", { username, roomId })
+      .then((res) => {
+        console.log("Joined to room:", res);
+        if (res.success) {
+          joinRoom(res.data.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to create room:", error);
+      });
   };
 
   const handleCreateRoom = () => {
     const username = prompt("Enter your username");
     const roomName = prompt("Enter room name");
     Request.post("/api/create-room", { username, roomName })
-      .then((data) => {
-        console.log("Room created:", data);
-        if (data.success) {
-          connect();
+      .then((res) => {
+        console.log("Room created:", res);
+        if (res.success) {
+          joinRoom(res.data.id);
         }
       })
       .catch((error) => {
@@ -61,7 +73,7 @@ const RoomList = () => {
             {rooms.map((room, index) => (
               <tr
                 key={index}
-                onClick={handleJoinRoom}
+                onClick={() => handleJoinRoom(room.id)}
                 className="hover:bg-purple-700 cursor-pointer"
               >
                 <td className="p-4 border-t border-purple-500 text-black">

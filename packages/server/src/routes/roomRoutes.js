@@ -18,12 +18,44 @@ router.get("/rooms", async (req, res) => {
 router.post("/create-room", async (req, res) => {
   try {
     const { username, roomName } = req.body;
+    if (!username || !roomName) {
+      return res
+        .status(400)
+        .json(new BaseResponse(false, "Username and room name are required"));
+    }
+
     const player = new Player({ username });
     const room = new Room({ roomName });
     room.connectPlayer(player);
 
     console.log("Room created:", room.id, room.roomName);
     res.json(new BaseResponse(true, "Room created successfully", room.id));
+  } catch (error) {
+    res.status(500).json(new BaseResponse(false, "An error occurred"));
+  }
+});
+
+router.post("/join-room", async (req, res) => {
+  try {
+    const { roomId, username } = req.body;
+    if (!roomId || !username) {
+      return res
+        .status(400)
+        .json(new BaseResponse(false, "Room ID and username are required"));
+    }
+
+    const player = new Player({ username });
+    const room = await redisClient.getRoom(roomId);
+    if (!room) {
+      return res.status(404).json(new BaseResponse(false, "Room not found"));
+    }
+
+    room.connectPlayer(player);
+    await room.save();
+
+    res.json(
+      new BaseResponse(true, "Player joined room successfully", room.toJSON())
+    );
   } catch (error) {
     res.status(500).json(new BaseResponse(false, "An error occurred"));
   }

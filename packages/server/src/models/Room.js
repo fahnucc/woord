@@ -43,12 +43,7 @@ class Room {
   }
 
   async save() {
-    const roomData = await redisClient.getRoom(this.id, this.toJSON());
-    if (roomData) {
-      await redisClient.updateRoom(this.id, JSON.stringify(this.toJSON()));
-    } else {
-      await redisClient.createRoom(this.id, JSON.stringify(this.toJSON()));
-    }
+    await redisClient.setRoom(this.id, JSON.stringify(this.toJSON()));
   }
 }
 
