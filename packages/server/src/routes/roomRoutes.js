@@ -15,6 +15,15 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
+router.post("/delete-all-rooms", async (req, res) => {
+  try {
+    await redisClient.deleteAllRooms();
+    res.json(new BaseResponse(true, "All rooms deleted successfully"));
+  } catch (error) {
+    res.status(500).json(new BaseResponse(false, "An error occurred"));
+  }
+});
+
 router.post("/create-room", async (req, res) => {
   try {
     const { username, roomName } = req.body;
@@ -24,7 +33,7 @@ router.post("/create-room", async (req, res) => {
         .json(new BaseResponse(false, "Username and room name are required"));
     }
 
-    const player = new Player({ username });
+    const player = new Player({ username, isHost: true });
     const room = new Room({ roomName });
     room.connectPlayer(player);
 
@@ -56,6 +65,19 @@ router.post("/join-room", async (req, res) => {
     res.json(
       new BaseResponse(true, "Player joined room successfully", room.toJSON())
     );
+  } catch (error) {
+    res.status(500).json(new BaseResponse(false, "An error occurred"));
+  }
+});
+
+router.get("/room/:id", async (req, res) => {
+  try {
+    const room = await redisClient.getRoom(req.params.id);
+    if (!room) {
+      return res.status(404).json(new BaseResponse(false, "Room not found"));
+    }
+
+    res.json(new BaseResponse(true, "Room retrieved successfully", room));
   } catch (error) {
     res.status(500).json(new BaseResponse(false, "An error occurred"));
   }

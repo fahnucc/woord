@@ -15,11 +15,26 @@ class Room {
     this.save();
   }
 
-  disconnectPlayer(player) {
+  async disconnectPlayer(player) {
+    if (player.isHost) {
+      if (this.players.length > 1) {
+        this.players[1].isHost = true;
+      } else {
+        return await redisClient.deleteRoom(this.id);
+      }
+    }
+
     const index = this.players.indexOf(player);
     if (index > -1) {
       this.players.splice(index, 1);
       this.save();
+    }
+  }
+
+  async disconnectPlayerUsername(username) {
+    const player = this.players.find((player) => player.username === username);
+    if (player) {
+      await this.disconnectPlayer(player);
     }
   }
 

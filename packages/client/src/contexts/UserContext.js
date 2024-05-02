@@ -1,40 +1,28 @@
-import React, { createContext, useContext, useState } from "react";
-import { useSocket } from "./SocketContext";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const { connect, disconnect } = useSocket();
+  const [username, setUsername] = useState(null);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
-  const logout = () => {
-    setUser(null);
-    setCurrentRoom(null);
-    disconnect();
-  };
-
-  const joinRoom = (room) => {
-    setCurrentRoom(room);
-    connect();
-  };
-
-  const leaveRoom = () => {
-    setCurrentRoom(null);
-    disconnect();
-  };
-
-  const isGuest = () => {
-    return user === null;
-  };
+  useEffect(() => {
+    if (!username || !username.length) return;
+    localStorage.setItem("username", username);
+  }, [username]);
 
   return (
     <UserContext.Provider
-      value={{ user, currentRoom, login, logout, joinRoom, leaveRoom, isGuest }}
+      value={{
+        username,
+        setUsername,
+      }}
     >
       {children}
     </UserContext.Provider>

@@ -1,14 +1,18 @@
-import Home from "./components/Home";
-import { SocketProvider } from "./contexts/SocketContext";
+import { Route, Routes } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
+import Home from "./pages/Home";
+import Rooms from "./pages/Rooms";
+import Room from "./pages/Room";
 
 function App() {
   return (
     <div className="w-screen h-screen">
       <UserProvider>
-        <SocketProvider>
-          <Home />
-        </SocketProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/rooms" element={<Rooms />} />
+          <Route path="/room/:id" element={<Room />} />
+        </Routes>
       </UserProvider>
     </div>
   );
