@@ -1,5 +1,6 @@
 import { createClient } from "redis";
 import Room from "./models/Room.js";
+import User from "./models/User.js";
 
 class RedisClient {
   constructor() {
@@ -12,6 +13,35 @@ class RedisClient {
 
   async connect() {
     await this.client.connect();
+  }
+
+  async createUser(username) {
+    const user = new User({ username });
+    this.setUser(username, JSON.stringify(user.toJSON()));
+    return user;
+  }
+
+  async setUser(username, value) {
+    await this.client.set(`user:${username}`, value);
+  }
+
+  async getUser(username) {
+    const userJsonString = await this.client.get(`user:${username}`);
+    if (userJsonString) {
+      return User.fromJSON(userJsonString);
+    } else {
+      return null;
+    }
+  }
+
+  async deleteUser(username) {
+    await this.client.del(`user:${username}`);
+  }
+
+  async deleteAllUsers() {
+    const keys = await this.client.keys("user:*");
+    if (keys.length === 0) return;
+    await this.client.del(keys);
   }
 
   async setRoom(roomId, value) {
