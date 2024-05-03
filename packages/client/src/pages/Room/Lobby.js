@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useUser } from "../../contexts/UserContext";
 import { useSocket } from "../../contexts/SocketContext";
 import Layout from "../../layout/Layout";
@@ -7,7 +8,8 @@ import Layout from "../../layout/Layout";
 const Lobby = () => {
   const { id } = useParams();
   const { username } = useUser();
-  const { room, connect } = useSocket();
+  const { connect } = useSocket();
+  const { room } = useSelector((state) => state.room);
 
   useEffect(() => {
     if (!room) {

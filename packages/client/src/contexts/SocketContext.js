@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import { useDispatch } from "react-redux";
+import { updateRoom } from "../store/actions";
 
 const URL = process.env.REACT_APP_SERVER_URL;
 const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
+  const dispatch = useDispatch();
   const [socket, setSocket] = useState(null);
-  const [room, setRoom] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -17,6 +19,7 @@ export const SocketProvider = ({ children }) => {
   }, [socket]);
 
   const connect = (roomId, username) => {
+    console.log("Connecting to socket with room ID:", roomId, socket);
     if (!socket || !socket.connected) {
       const _socket = io(URL, {
         query: { roomId, username: username },
@@ -26,7 +29,7 @@ export const SocketProvider = ({ children }) => {
 
       _socket.on("update-room", (data) => {
         console.log("Room updated:", data.room);
-        setRoom(data.room);
+        dispatch(updateRoom(data.room));
       });
 
       _socket.emit("join-room", { roomId, username });
@@ -46,7 +49,7 @@ export const SocketProvider = ({ children }) => {
   };
 
   return (
-    <SocketContext.Provider value={{ connect, emit, room }}>
+    <SocketContext.Provider value={{ connect, emit }}>
       {children}
     </SocketContext.Provider>
   );

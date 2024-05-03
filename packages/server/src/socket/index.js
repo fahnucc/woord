@@ -9,9 +9,9 @@ export const initializeSocket = (server) => {
   });
 
   io.on("connection", async (socket) => {
+    console.log(`CONNECT: User [${socket.id}] connected`);
     socket.on("join-room", async (data) => {
       const { username, roomId } = data;
-
       socket.join(roomId);
       socket.username = username;
       socket.roomId = roomId;
@@ -20,7 +20,7 @@ export const initializeSocket = (server) => {
       if (!room) return;
 
       console.log(
-        `CONNECT: User [${socket.username}] joined to [${socket.roomId}]`
+        `JOİN: User [${socket.username}] joined to [${socket.roomId}]`
       );
 
       io.to(roomId).emit("update-room", { room });
@@ -32,7 +32,7 @@ export const initializeSocket = (server) => {
       await room.disconnectPlayerUsername(socket.username);
 
       console.log(
-        `DISCONNECT: User [${socket.username}] disconnected from [${socket.roomId}]`
+        `LEAVE: User [${socket.username}] disconnected from [${socket.roomId}]`
       );
 
       io.to(socket.roomId).emit("update-room", { room });
