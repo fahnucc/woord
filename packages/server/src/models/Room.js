@@ -16,9 +16,9 @@ class Room {
     );
   }
 
-  connectPlayer(player) {
+  async connectPlayer(player) {
     this.players.push(player);
-    this.save();
+    await this.save();
   }
 
   async disconnectPlayer(player) {
@@ -33,7 +33,7 @@ class Room {
     const index = this.players.indexOf(player);
     if (index > -1) {
       this.players.splice(index, 1);
-      this.save();
+      await this.save();
     }
   }
 

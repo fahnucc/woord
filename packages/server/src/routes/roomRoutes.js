@@ -33,6 +33,8 @@ router.post("/create-room", async (req, res) => {
         .json(new BaseResponse(false, "Username and room name are required"));
     }
 
+    const user = await redisClient.getUser(username);
+    await user.incrementNumberOfRoomsCreated();
     const player = new Player({ username, isHost: true });
     const room = new Room({ roomName });
     room.connectPlayer(player);

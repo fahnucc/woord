@@ -21,6 +21,9 @@ class Player {
   }
 
   static fromJSON(jsonData) {
+    if (typeof jsonData === "string") {
+      jsonData = JSON.parse(jsonData);
+    }
     return new Player(jsonData);
   }
 }

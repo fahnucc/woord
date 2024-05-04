@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import redisClient from "../RedisClient.js";
 
 class User {
   constructor({
@@ -11,6 +12,12 @@ class User {
     this.username = username;
     this.createdAt = createdAt;
     this.numberOfRoomsCreated = numberOfRoomsCreated;
+    this.save();
+  }
+
+  async incrementNumberOfRoomsCreated() {
+    this.numberOfRoomsCreated++;
+    await this.save();
   }
 
   toJSON() {
@@ -23,7 +30,14 @@ class User {
   }
 
   static fromJSON(jsonData) {
+    if (typeof jsonData === "string") {
+      jsonData = JSON.parse(jsonData);
+    }
     return new User(jsonData);
+  }
+
+  async save() {
+    await redisClient.setUser(this.username, JSON.stringify(this.toJSON()));
   }
 }
 
