@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import roomReducer from "./store/roomReducer";
+import roomReducer from "./redux/roomSlice";
 import userReducer from "./redux/userSlice";
 import { loadState, saveState } from "./localStorage";
 
@@ -14,8 +14,10 @@ const store = configureStore({
 });
 
 store.subscribe(() => {
+  const state = store.getState();
   saveState({
-    user: store.getState().user,
+    user: state.user,
+    room: state.room,
   });
 });
 

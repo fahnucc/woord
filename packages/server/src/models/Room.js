@@ -10,6 +10,12 @@ class Room {
     this.save();
   }
 
+  getPlayer({ username, userId }) {
+    return this.players.find(
+      (player) => player.username === username || player.id === userId
+    );
+  }
+
   connectPlayer(player) {
     this.players.push(player);
     this.save();

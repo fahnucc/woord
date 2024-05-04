@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Request from "../utils/Request";
-import { useUser } from "../contexts/UserContext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const RoomList = () => {
+  const user = useSelector((state) => state.user);
   const [rooms, setRooms] = useState([]);
-  const { username, setUsername } = useUser();
   const navigate = useNavigate();
 
   const fetchRooms = () => {
@@ -28,14 +28,9 @@ const RoomList = () => {
   }, []);
 
   const handleJoinRoom = (roomId) => {
-    const username = prompt("Enter your username");
-    if (!username) return;
-
-    Request.post("/api/join-room", { username, roomId })
+    Request.post("/api/join-room", { username: user.username, roomId })
       .then((res) => {
-        console.log("Joined to room:", res);
         if (res.success) {
-          setUsername(username);
           navigate(`/room/${roomId}`);
         }
       })
@@ -48,13 +43,7 @@ const RoomList = () => {
     const roomName = prompt("room name");
     if (!roomName) return;
 
-    let _username = username;
-    if (!_username || !_username.length) {
-      _username = prompt("username");
-    }
-    setUsername(_username);
-
-    Request.post("/api/create-room", { username: _username, roomName })
+    Request.post("/api/create-room", { username: user.username, roomName })
       .then((res) => {
         if (res.success) {
           const roomId = res.data;

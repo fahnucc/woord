@@ -5,6 +5,11 @@ class Player {
     this.id = id;
     this.username = username;
     this.isHost = isHost;
+    this.isReady = false;
+  }
+
+  setReady(ready) {
+    this.isReady = ready;
   }
 
   toJSON() {

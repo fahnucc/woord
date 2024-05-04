@@ -7,7 +7,7 @@ import RoomList from "../components/RoomList";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
 
   function handleLogout() {
     localStorage.removeItem("user");
@@ -16,7 +16,7 @@ const Home = () => {
 
   return (
     <Layout>
-      {user ? (
+      {user.id ? (
         <div>
           <div className="mb-4">
             Welcome, {user.username}{" "}

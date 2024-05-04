@@ -9,21 +9,51 @@ export const initializeSocket = (server) => {
   });
 
   io.on("connection", async (socket) => {
-    console.log(`CONNECT: User [${socket.id}] connected`);
-    socket.on("join-room", async (data) => {
-      const { username, roomId } = data;
-      socket.join(roomId);
-      socket.username = username;
-      socket.roomId = roomId;
+    const { username, roomId } = socket.handshake.query;
+    console.log(`CONNECT: User [${username}] connected`);
+    socket.username = username;
+    socket.roomId = roomId;
 
-      const room = await redisClient.getRoom(roomId);
+    socket.on("join-room", async () => {
+      socket.roomId = roomId;
+      socket.join(socket.roomId);
+
+      const room = await redisClient.getRoom(socket.roomId);
       if (!room) return;
 
       console.log(
         `JOİN: User [${socket.username}] joined to [${socket.roomId}]`
       );
 
-      io.to(roomId).emit("update-room", { room });
+      io.to(socket.roomId).emit("update-room", { room });
+    });
+
+    socket.on("set-ready", async (data) => {
+      const { isReady } = data;
+
+      const room = await redisClient.getRoom(socket.roomId);
+
+      const player = room.getPlayer({ username: socket.username });
+      player.setReady(isReady);
+
+      console.log(
+        `SET-READY: User [${socket.username}] set ready to [${isReady}]`
+      );
+
+      io.to(socket.roomId).emit("set-ready", {
+        player: { username: socket.username, isReady },
+      });
+    });
+
+    socket.on("start-game", async () => {
+      const room = await redisClient.getRoom(socket.roomId);
+      if (!room) return;
+
+      // await room.startGame();
+
+      console.log(`START: Game started in [${socket.roomId}]`);
+
+      io.to(socket.roomId).emit("update-room", { room });
     });
 
     socket.on("disconnect", async () => {

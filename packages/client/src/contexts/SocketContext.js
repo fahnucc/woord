@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { io } from "socket.io-client";
-import { useDispatch } from "react-redux";
-import { updateRoom } from "../store/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { updateRoom, setPlayerReady } from "../redux/roomSlice";
 
 const URL = process.env.REACT_APP_SERVER_URL;
 const SocketContext = createContext(null);
@@ -9,6 +9,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const dispatch = useDispatch();
   const [socket, setSocket] = useState(null);
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     return () => {
@@ -18,11 +19,10 @@ export const SocketProvider = ({ children }) => {
     };
   }, [socket]);
 
-  const connect = (roomId, username) => {
-    console.log("Connecting to socket with room ID:", roomId, socket);
+  const connect = (roomId) => {
     if (!socket || !socket.connected) {
       const _socket = io(URL, {
-        query: { roomId, username: username },
+        query: { roomId, username: user.username },
         autoConnect: false,
       });
       _socket.connect();
@@ -32,7 +32,11 @@ export const SocketProvider = ({ children }) => {
         dispatch(updateRoom(data.room));
       });
 
-      _socket.emit("join-room", { roomId, username });
+      _socket.on("set-ready", (data) => {
+        dispatch(setPlayerReady(data.player));
+      });
+
+      _socket.emit("join-room");
 
       setSocket(_socket);
       console.log("Connected to socket with room ID:", roomId);

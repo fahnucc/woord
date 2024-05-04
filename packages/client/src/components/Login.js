@@ -20,7 +20,6 @@ function Login() {
 
     if (response.ok) {
       const result = await response.json();
-      console.log("User data:", result.data.user);
       dispatch(setUser(result.data.user));
     }
   };
