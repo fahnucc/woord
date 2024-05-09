@@ -1,46 +1,46 @@
 import { v4 as uuidv4 } from "uuid";
 import redisClient from "../RedisClient.js";
-import Player from "./Player.js";
+import User from "./User.js";
 
 class Room {
-  constructor({ id = uuidv4(), roomName, players = [] }) {
+  constructor({ id = uuidv4(), roomName, users = [] }) {
     this.id = id;
     this.roomName = roomName;
-    this.players = players;
+    this.users = users;
     this.save();
   }
 
-  getPlayer({ username, userId }) {
-    return this.players.find(
-      (player) => player.username === username || player.id === userId
+  getUser({ username, userId }) {
+    return this.users.find(
+      (user) => user.username === username || user.id === userId
     );
   }
 
-  async connectPlayer(player) {
-    this.players.push(player);
+  async connectUser(user) {
+    this.users.push(user);
     await this.save();
   }
 
-  async disconnectPlayer(player) {
-    if (player.isHost) {
-      if (this.players.length > 1) {
-        this.players[1].isHost = true;
+  async disconnectUser(user) {
+    if (user.isHost) {
+      if (this.users.length > 1) {
+        this.users[1].isHost = true;
       } else {
         return await redisClient.deleteRoom(this.id);
       }
     }
 
-    const index = this.players.indexOf(player);
+    const index = this.users.indexOf(user);
     if (index > -1) {
-      this.players.splice(index, 1);
+      this.users.splice(index, 1);
       await this.save();
     }
   }
 
-  async disconnectPlayerUsername(username) {
-    const player = this.players.find((player) => player.username === username);
-    if (player) {
-      await this.disconnectPlayer(player);
+  async disconnectUserByUsername(username) {
+    const user = this.users.find((user) => user.username === username);
+    if (user) {
+      await this.disconnectUser(user);
     }
   }
 
@@ -48,7 +48,7 @@ class Room {
     return {
       id: this.id,
       roomName: this.roomName,
-      players: this.players.map((player) => player.toJSON()),
+      users: this.users.map((user) => user.toJSON()),
     };
   }
 
@@ -59,7 +59,7 @@ class Room {
     return new Room({
       id: jsonData.id,
       roomName: jsonData.roomName,
-      players: jsonData.players.map(Player.fromJSON),
+      users: jsonData.users.map(User.fromJSON),
     });
   }
 
