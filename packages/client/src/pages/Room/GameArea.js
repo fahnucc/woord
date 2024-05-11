@@ -1,12 +1,13 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import Layout from "../../layout/Layout";
+import Board from "./Board";
 
 const GameArea = () => {
   const room = useSelector((state) => state.room);
   const user = useSelector((state) => state.user);
   const game = useSelector((state) => state.game);
-
+  console.log("game", game);
   const player = game?.players.find(
     (gamePlayer) => gamePlayer.username === user?.username
   );
@@ -26,7 +27,9 @@ const GameArea = () => {
             </div>
           ))}
         </div>
-        <div className="col-span-3 bg-gray-200 px-4 flex flex-col"></div>
+        <div className="col-span-3 bg-gray-200 px-4 flex flex-col justify-center items-center">
+          <Board board={game.board.grid} />
+        </div>{" "}
       </div>
     </Layout>
   );
