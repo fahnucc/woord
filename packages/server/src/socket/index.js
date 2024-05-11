@@ -51,11 +51,6 @@ export const initializeSocket = (server) => {
       if (!room) return;
 
       await room.startGame();
-      setTimeout(async () => {
-        room.game.state = GameStatus.IN_PROGRESS;
-        await room.save();
-        io.to(socket.roomId).emit("update-game", { game: room.game });
-      }, 3000);
 
       console.log(`START: Game started in [${socket.roomId}]`);
 
@@ -63,20 +58,21 @@ export const initializeSocket = (server) => {
       io.to(socket.roomId).emit("update-game", { game: room.game });
     });
 
-    socket.on("player-action", async ({ gameId, action }) => {
+    socket.on("find-word", async (data) => {
+      const { word, x, y } = data;
       const room = await redisClient.getRoom(socket.roomId);
-      if (!room) return;
 
-      const success = await game.placeWord(
-        action.playerId,
-        action.x,
-        action.y,
-        action.word
-      );
-      if (success) {
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      const player = game.players.find((p) => p.username === socket.username);
+
+      if (!player) return;
+
+      const valid = game.findWord(player.id, x, y, word);
+      if (valid) {
+        await room.save();
         io.to(socket.roomId).emit("update-game", { game });
-      } else {
-        socket.emit("action-failed", { reason: "Invalid word placement" });
       }
     });
 

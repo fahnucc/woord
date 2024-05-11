@@ -4,7 +4,6 @@ class Board {
     this.grid = Array(size)
       .fill(null)
       .map(() => Array(size).fill(null));
-    this.foundWords = new Map();
 
     this.initBoard();
   }

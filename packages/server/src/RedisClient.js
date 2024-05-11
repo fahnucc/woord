@@ -76,6 +76,29 @@ class RedisClient {
       .map((jsonString) => Room.fromJSON(jsonString));
     return rooms;
   }
+
+  async setGame(gameId, value) {
+    await this.client.set(`game:${gameId}`, value);
+  }
+
+  async getGame(gameId) {
+    const gameJsonString = await this.client.get(`game:${gameId}`);
+    if (gameJsonString) {
+      return JSON.parse(gameJsonString);
+    } else {
+      return null;
+    }
+  }
+
+  async deleteGame(gameId) {
+    await this.client.del(`game:${gameId}`);
+  }
+
+  async deleteAllGames() {
+    const keys = await this.client.keys("game:*");
+    if (keys.length === 0) return;
+    await this.client.del(keys);
+  }
 }
 
 const redisClient = new RedisClient();

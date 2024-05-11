@@ -82,10 +82,7 @@ class Room {
       roomName: jsonData.roomName,
       status: jsonData.status,
       users: jsonData.users.map(User.fromJSON),
-      game:
-        this.status === RoomStatus.IN_GAME
-          ? Game.fromJSON(jsonData.game)
-          : null,
+      game: Game.fromJSON(jsonData.game),
     });
   }
 

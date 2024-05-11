@@ -9,7 +9,7 @@ class Game {
     id = uuidv4(),
     board = new Board(),
     players = [],
-    state = GameStatus.NOT_STARTED,
+    state = GameStatus.IN_PROGRESS,
     timer = 180,
   }) {
     this.id = id;
@@ -26,10 +26,8 @@ class Game {
     const valid = this.board.validateWord(x, y, word);
     if (!valid) return false;
 
-    this.board.placeWord(x, y, word);
-    player.updateScore(word.length);
+    player.addScore(word.length);
 
-    await this.save();
     return true;
   }
 
@@ -44,6 +42,7 @@ class Game {
   }
 
   static fromJSON(jsonData) {
+    if (!jsonData) return null;
     if (typeof jsonData === "string") {
       jsonData = JSON.parse(jsonData);
     }

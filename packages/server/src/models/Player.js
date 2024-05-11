@@ -1,13 +1,19 @@
 class Player {
-  constructor({ id, username, isConnected = false }) {
+  constructor({
+    id,
+    username,
+    isConnected = false,
+    score = 0,
+    foundWords = [],
+  }) {
     this.id = id;
     this.username = username;
     this.isConnected = isConnected;
-    this.score = 0;
-    this.foundWords = new Map();
+    this.score = score;
+    this.foundWords = foundWords;
   }
 
-  updateScore(points) {
+  addScore(points) {
     this.score += points;
   }
 
@@ -15,6 +21,9 @@ class Player {
     return {
       id: this.id,
       username: this.username,
+      isConnected: this.isConnected,
+      score: this.score,
+      foundWords: Array.from(this.foundWords),
     };
   }
 
