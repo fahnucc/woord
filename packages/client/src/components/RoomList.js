@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import Request from "../utils/Request";
+import { useSelector, useDispatch } from "react-redux";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Request from "../utils/Request";
+import { leaveRoom } from "../redux/roomSlice";
+import { resetGame } from "../redux/gameSlice";
 
 const RoomList = () => {
   const user = useSelector((state) => state.user);
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const fetchRooms = () => {
     Request.get("/api/rooms")
       .then((data) => {
+        console.log(data);
         if (data.success) {
           setRooms(data.data);
         }
@@ -31,6 +35,8 @@ const RoomList = () => {
     Request.post("/api/join-room", { username: user.username, roomId })
       .then((res) => {
         if (res.success) {
+          dispatch(leaveRoom());
+          dispatch(resetGame());
           navigate(`/room/${roomId}`);
         }
       })
@@ -47,6 +53,8 @@ const RoomList = () => {
       .then((res) => {
         if (res.success) {
           const roomId = res.data;
+          dispatch(leaveRoom());
+          dispatch(resetGame());
           navigate(`/room/${roomId}`);
         }
       })
@@ -108,7 +116,7 @@ const RoomList = () => {
                 className="hover:bg-purple-700 cursor-pointer"
               >
                 <td className="p-4">{room.roomName}</td>
-                <td className="p-4">{room.players.length}</td>
+                <td className="p-4">{room.users.length}</td>
               </tr>
             ))}
           </tbody>

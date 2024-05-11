@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/login", async (req, res) => {
   try {
-    await redisClient.deleteAllUsers();
+    // await redisClient.deleteAllUsers();
 
     const { username } = req.body;
     if (!username) {

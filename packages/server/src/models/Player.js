@@ -1,22 +1,20 @@
-import { v4 as uuidv4 } from "uuid";
-
 class Player {
-  constructor({ id = uuidv4(), username, isHost = false }) {
+  constructor({ id, username, isConnected = false }) {
     this.id = id;
     this.username = username;
-    this.isHost = isHost;
-    this.isReady = false;
+    this.isConnected = isConnected;
+    this.score = 0;
+    this.foundWords = new Map();
   }
 
-  setReady(ready) {
-    this.isReady = ready;
+  updateScore(points) {
+    this.score += points;
   }
 
   toJSON() {
     return {
       id: this.id,
       username: this.username,
-      isHost: this.isHost,
     };
   }
 

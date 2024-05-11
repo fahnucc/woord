@@ -5,11 +5,15 @@ class User {
   constructor({
     id = uuidv4(),
     username,
+    isHost = false,
+    isReady = false,
     createdAt = new Date(),
     numberOfRoomsCreated = 0,
   }) {
     this.id = id;
     this.username = username;
+    this.isHost = isHost;
+    this.isReady = isReady;
     this.createdAt = createdAt;
     this.numberOfRoomsCreated = numberOfRoomsCreated;
     this.save();
@@ -20,10 +24,16 @@ class User {
     await this.save();
   }
 
+  setReady(isReady) {
+    this.isReady = isReady;
+  }
+
   toJSON() {
     return {
       id: this.id,
       username: this.username,
+      isHost: this.isHost,
+      isReady: this.isReady,
       createdAt: this.createdAt,
       numberOfRoomsCreated: this.numberOfRoomsCreated,
     };

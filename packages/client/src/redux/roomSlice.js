@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   id: null,
-  players: [],
+  users: [],
   roomName: null,
   isAllReady: false,
 };
@@ -13,28 +13,29 @@ export const roomSlice = createSlice({
   reducers: {
     updateRoom(state, action) {
       state.id = action.payload.id;
-      state.players = action.payload.players;
+      state.users = action.payload.users;
       state.roomName = action.payload.roomName;
-      state.isAllReady = action.payload.players.every((player) => player.ready);
+      state.isAllReady = action.payload.users.every((user) => user.ready);
     },
     leaveRoom(state) {
       state.id = null;
-      state.players = [];
+      state.users = [];
       state.roomName = null;
       state.isAllReady = false;
     },
     setPlayerReady(state, action) {
+      console.log("Setting player ready:", action.payload);
       const { username, isReady } = action.payload;
-      const playerIndex = state.players.findIndex(
-        (player) => player.username === username
+      const userIndex = state.users.findIndex(
+        (user) => user.username === username
       );
-      if (playerIndex !== -1) {
-        state.players[playerIndex].isReady = isReady;
+      if (userIndex !== -1) {
+        state.users[userIndex].isReady = isReady;
       }
-      state.isAllReady = state.players.every(
-        (player) => player.isReady || player.isHost
+      state.isAllReady = state.users.every(
+        (user) => user.isReady || user.isHost
       );
-      console.log("Setting player isAllReady:", state.isAllReady);
+      console.log("Setting user isAllReady:", state.isAllReady);
     },
     startGame(state) {
       if (state.isAllReady) {

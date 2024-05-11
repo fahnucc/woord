@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from "socket.io";
 import redisClient from "../RedisClient.js";
+import { GameStatus } from "../enums/index.js";
 
 export const initializeSocket = (server) => {
   const io = new SocketIOServer(server, {
@@ -33,15 +34,15 @@ export const initializeSocket = (server) => {
 
       const room = await redisClient.getRoom(socket.roomId);
 
-      const player = room.getPlayer({ username: socket.username });
-      player.setReady(isReady);
+      const user = room.getUser({ username: socket.username });
+      user.setReady(isReady);
 
       console.log(
         `SET-READY: User [${socket.username}] set ready to [${isReady}]`
       );
 
       io.to(socket.roomId).emit("set-ready", {
-        player: { username: socket.username, isReady },
+        user: { username: socket.username, isReady },
       });
     });
 
@@ -49,17 +50,40 @@ export const initializeSocket = (server) => {
       const room = await redisClient.getRoom(socket.roomId);
       if (!room) return;
 
-      // await room.startGame();
+      await room.startGame();
+      setTimeout(async () => {
+        room.game.state = GameStatus.IN_PROGRESS;
+        await room.save();
+        io.to(socket.roomId).emit("update-game", { game: room.game });
+      }, 3000);
 
       console.log(`START: Game started in [${socket.roomId}]`);
 
       io.to(socket.roomId).emit("update-room", { room });
+      io.to(socket.roomId).emit("update-game", { game: room.game });
+    });
+
+    socket.on("player-action", async ({ gameId, action }) => {
+      const room = await redisClient.getRoom(socket.roomId);
+      if (!room) return;
+
+      const success = await game.placeWord(
+        action.playerId,
+        action.x,
+        action.y,
+        action.word
+      );
+      if (success) {
+        io.to(socket.roomId).emit("update-game", { game });
+      } else {
+        socket.emit("action-failed", { reason: "Invalid word placement" });
+      }
     });
 
     socket.on("disconnect", async () => {
       const room = await redisClient.getRoom(socket.roomId);
       if (!room) return;
-      await room.disconnectPlayerUsername(socket.username);
+      await room.disconnectUserByUsername(socket.username);
 
       console.log(
         `LEAVE: User [${socket.username}] disconnected from [${socket.roomId}]`

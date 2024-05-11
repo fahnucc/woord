@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 import { updateRoom, setPlayerReady } from "../redux/roomSlice";
+import { updateGame } from "../redux/gameSlice";
 
 const URL = process.env.REACT_APP_SERVER_URL;
 const SocketContext = createContext(null);
@@ -28,12 +29,15 @@ export const SocketProvider = ({ children }) => {
       _socket.connect();
 
       _socket.on("update-room", (data) => {
-        console.log("Room updated:", data.room);
         dispatch(updateRoom(data.room));
       });
 
       _socket.on("set-ready", (data) => {
-        dispatch(setPlayerReady(data.player));
+        dispatch(setPlayerReady(data.user));
+      });
+
+      _socket.on("update-game", (data) => {
+        dispatch(updateGame(data.game));
       });
 
       _socket.emit("join-room");

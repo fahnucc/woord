@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Rooms from "./pages/Rooms";
 import Room from "./pages/Room";
+import { SocketProvider } from "./contexts/SocketContext";
 
 function App() {
   return (
@@ -9,7 +10,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         {/* <Route path="/rooms" element={<Rooms />} /> */}
-        <Route path="/room/:id" element={<Room />} />
+
+        <Route
+          path="/room/:id"
+          element={
+            <SocketProvider>
+              <Room />
+            </SocketProvider>
+          }
+        />
       </Routes>
     </div>
   );

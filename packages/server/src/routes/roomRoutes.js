@@ -2,6 +2,7 @@ import express from "express";
 import BaseResponse from "../responses/baseResponse.js";
 import Player from "../models/Player.js";
 import Room from "../models/Room.js";
+import User from "../models/User.js";
 import redisClient from "../RedisClient.js";
 
 const router = express.Router();
@@ -35,9 +36,9 @@ router.post("/create-room", async (req, res) => {
 
     const user = await redisClient.getUser(username);
     await user.incrementNumberOfRoomsCreated();
-    const player = new Player({ username, isHost: true });
+    user.isHost = true;
     const room = new Room({ roomName });
-    room.connectPlayer(player);
+    room.connectUser(user);
 
     console.log("Room created:", room.id, room.roomName);
     res.json(new BaseResponse(true, "Room created successfully", room.id));
@@ -55,13 +56,17 @@ router.post("/join-room", async (req, res) => {
         .json(new BaseResponse(false, "Room ID and username are required"));
     }
 
-    const player = new Player({ username });
+    const user = await redisClient.getUser(username);
+    if (!user) {
+      return res.status(404).json(new BaseResponse(false, "User not found"));
+    }
     const room = await redisClient.getRoom(roomId);
     if (!room) {
       return res.status(404).json(new BaseResponse(false, "Room not found"));
     }
 
-    room.connectPlayer(player);
+    user.isHost = false;
+    room.connectUser(user);
     await room.save();
 
     res.json(

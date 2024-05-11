@@ -1,12 +1,23 @@
 import { v4 as uuidv4 } from "uuid";
 import redisClient from "../RedisClient.js";
 import User from "./User.js";
+import Game from "./Game.js";
+import Player from "./Player.js";
+import { RoomStatus } from "../enums/index.js";
 
 class Room {
-  constructor({ id = uuidv4(), roomName, users = [] }) {
+  constructor({
+    id = uuidv4(),
+    roomName,
+    users = [],
+    game = null,
+    status = RoomStatus.LOBBY,
+  }) {
     this.id = id;
     this.roomName = roomName;
     this.users = users;
+    this.game = game;
+    this.status = status;
     this.save();
   }
 
@@ -44,11 +55,21 @@ class Room {
     }
   }
 
+  async startGame() {
+    this.game = new Game({
+      players: this.users.map((user) => new Player(user)),
+    });
+    this.status = RoomStatus.IN_GAME;
+    await this.save();
+  }
+
   toJSON() {
     return {
       id: this.id,
       roomName: this.roomName,
+      status: this.status,
       users: this.users.map((user) => user.toJSON()),
+      game: this.game?.toJSON(),
     };
   }
 
@@ -59,7 +80,12 @@ class Room {
     return new Room({
       id: jsonData.id,
       roomName: jsonData.roomName,
+      status: jsonData.status,
       users: jsonData.users.map(User.fromJSON),
+      game:
+        this.status === RoomStatus.IN_GAME
+          ? Game.fromJSON(jsonData.game)
+          : null,
     });
   }
 
