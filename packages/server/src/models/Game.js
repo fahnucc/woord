@@ -1,8 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
+import path from "path";
 import redisClient from "../RedisClient.js";
 import Board from "./Board.js";
 import Player from "./Player.js";
+import Trie from "./Trie.js";
 import { GameStatus } from "../enums/index.js";
+import { loadWordsFromJson, addWordsToTrie } from "../words/utils.js";
 
 class Game {
   constructor({
@@ -19,16 +22,36 @@ class Game {
     this.timer = timer;
   }
 
-  async findWord(playerId, x, y, word) {
+  async guessWord(playerId, x, y, word) {
     const player = this.players.find((p) => p.id === playerId);
     if (!player) return false;
 
-    const valid = this.board.validateWord(x, y, word);
+    const valid = await this.validateWord(x, y, word);
     if (!valid) return false;
 
     player.addScore(word.length);
 
     return true;
+  }
+
+  async validateWord(x, y, word) {
+    const trie = await this.initializeTrie();
+    const isValid = trie.contains(word);
+    return isValid;
+  }
+
+  async initializeTrie() {
+    let trie = await redisClient.getTrie();
+
+    if (trie === null) {
+      trie = new Trie();
+      const filePath = path.resolve("./src/words/sowpods.json");
+      const wordSet = loadWordsFromJson(filePath);
+      addWordsToTrie(wordSet, trie);
+      await redisClient.setTrie(trie);
+    }
+
+    return trie;
   }
 
   toJSON() {

@@ -56,6 +56,7 @@ export const initializeSocket = (server) => {
 
       io.to(socket.roomId).emit("update-room", { room });
       io.to(socket.roomId).emit("update-game", { game: room.game });
+      await room.save();
     });
 
     socket.on("find-word", async (data) => {
@@ -69,11 +70,20 @@ export const initializeSocket = (server) => {
 
       if (!player) return;
 
-      const valid = game.findWord(player.id, x, y, word);
+      const valid = await game.guessWord(player.id, x, y, word);
       if (valid) {
-        await room.save();
         io.to(socket.roomId).emit("update-game", { game });
+        socket.emit("valid-word");
+        console.log(
+          `FIND-WORD: User [${socket.username}] found [${word}] in [${socket.roomId}]`
+        );
+      } else {
+        socket.emit("invalid-word");
+        console.log(
+          `INVALID-WORD: User [${socket.username}] tried to find [${word}]`
+        );
       }
+      await room.save();
     });
 
     socket.on("disconnect", async () => {

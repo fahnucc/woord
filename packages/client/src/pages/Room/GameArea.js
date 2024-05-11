@@ -1,15 +1,15 @@
 import React, { useState, useCallback } from "react";
 import { useSelector } from "react-redux";
+import { useSocket } from "../../contexts/SocketContext";
 import Layout from "../../layout/Layout";
 import Board from "./Board";
-import { useSocket } from "../../contexts/SocketContext";
+import Guess from "./Guess";
 
 const GameArea = () => {
   const room = useSelector((state) => state.room);
   const user = useSelector((state) => state.user);
   const game = useSelector((state) => state.game);
   const { emit } = useSocket();
-  console.log("game", game);
   const [selectedWord, setSelectedWord] = useState("");
 
   const handleWordSelect = useCallback(
@@ -41,21 +41,12 @@ const GameArea = () => {
           ))}
         </div>
         <div className="col-span-3 bg-gray-200 px-4 flex flex-col justify-center items-center">
-          {selectedWord && (
-            <div className="mt-4 p-2 bg-yellow-100 flex gap-2 border border-yellow-400 rounded-md">
-              {selectedWord.split("").map((letter, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center justify-center bg-white border border-gray-400 rounded-lg`}
-                >
-                  <div className="flex items-center justify-center w-12 h-12 border border-gray-300 rounded-md select-none">
-                    {letter}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <Board board={game.board.grid} onWordSelect={handleWordSelect} />
+          <Guess word={selectedWord} valid={game.lastWord.valid} />
+          <Board
+            board={game.board.grid}
+            onWordChange={setSelectedWord}
+            onWordSelect={handleWordSelect}
+          />
         </div>
       </div>
     </Layout>

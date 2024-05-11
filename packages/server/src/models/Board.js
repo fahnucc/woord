@@ -75,10 +75,6 @@ class Board {
       grid: this.grid,
     };
   }
-
-  validateWord(x, y, word) {
-    return true;
-  }
 }
 
 export default Board;

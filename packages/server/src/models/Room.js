@@ -60,7 +60,6 @@ class Room {
       players: this.users.map((user) => new Player(user)),
     });
     this.status = RoomStatus.IN_GAME;
-    await this.save();
   }
 
   toJSON() {

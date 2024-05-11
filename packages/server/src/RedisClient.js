@@ -1,6 +1,7 @@
 import { createClient } from "redis";
 import Room from "./models/Room.js";
 import User from "./models/User.js";
+import Trie from "./models/Trie.js";
 
 class RedisClient {
   constructor() {
@@ -98,6 +99,20 @@ class RedisClient {
     const keys = await this.client.keys("game:*");
     if (keys.length === 0) return;
     await this.client.del(keys);
+  }
+
+  async setTrie(trie) {
+    const trieJSON = trie.toJSON();
+    await this.client.set("trie", trieJSON);
+  }
+
+  async getTrie() {
+    const trieJSON = await this.client.get("trie");
+    if (trieJSON) {
+      return Trie.fromJSON(trieJSON);
+    } else {
+      return null;
+    }
   }
 }
 
