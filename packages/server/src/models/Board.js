@@ -1,9 +1,15 @@
+import Trie from "./Trie.js";
+import redisClient from "../RedisClient.js";
+
 class Board {
-  constructor(size = 4) {
+  constructor(size = 4, grid = null, validWords = null) {
     this.size = size;
-    this.grid = Array(size)
-      .fill(null)
-      .map(() => Array(size).fill(null));
+    this.grid =
+      grid ||
+      Array(size)
+        .fill(null)
+        .map(() => Array(size).fill(null));
+    this.validWords = validWords || new Trie();
 
     this.initBoard();
   }
@@ -47,6 +53,57 @@ class Board {
     }
   }
 
+  async populateValidWords() {
+    const now = new Date();
+    const directions = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+    const visited = Array.from({ length: this.size }, () =>
+      Array(this.size).fill(false)
+    );
+
+    let totalWords = 0;
+
+    const dfs = (x, y, path, node) => {
+      if (x < 0 || x >= this.size || y < 0 || y >= this.size || visited[x][y])
+        return;
+      const char = this.grid[x][y].toLowerCase();
+      const currentPath = path + char;
+      if (!node.canLeadToWord(char)) return;
+
+      visited[x][y] = true;
+      node = node.getChildNode(char);
+      if (node.isEndOfWord) {
+        this.validWords.insert(currentPath);
+        totalWords++;
+      }
+
+      for (const [dx, dy] of directions) {
+        dfs(x + dx, y + dy, currentPath, node);
+      }
+      visited[x][y] = false;
+    };
+
+    let trie = await redisClient.getTrie();
+
+    for (let i = 0; i < this.size; i++) {
+      for (let j = 0; j < this.size; j++) {
+        dfs(i, j, "", trie.root);
+      }
+    }
+
+    console.log(
+      `CALC: ${totalWords} valid words populated in ${new Date() - now}ms`
+    );
+  }
+
   createLetterPool(frequencyDict) {
     let letterPool = [];
     for (const [letter, frequency] of Object.entries(frequencyDict)) {
@@ -64,8 +121,11 @@ class Board {
   }
 
   static fromJSON(jsonData) {
-    const board = new Board(jsonData.size);
-    board.grid = jsonData.grid;
+    const board = new Board(
+      jsonData.size,
+      jsonData.grid,
+      Trie.fromJSON(jsonData.validWords)
+    );
     return board;
   }
 
@@ -73,6 +133,7 @@ class Board {
     return {
       size: this.size,
       grid: this.grid,
+      validWords: this.validWords.toJSON(),
     };
   }
 }

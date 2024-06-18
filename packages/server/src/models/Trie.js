@@ -3,6 +3,23 @@ class TrieNode {
     this.children = {};
     this.isEndOfWord = false;
   }
+
+  canLeadToWord(char) {
+    return !!this.children[char];
+  }
+
+  getChildNode(char) {
+    return this.children[char];
+  }
+
+  static fromJSON(jsonNode) {
+    const node = new TrieNode();
+    node.isEndOfWord = jsonNode.isEndOfWord;
+    Object.keys(jsonNode.children).forEach((char) => {
+      node.children[char] = TrieNode.fromJSON(jsonNode.children[char]);
+    });
+    return node;
+  }
 }
 
 class Trie {
@@ -25,7 +42,6 @@ class Trie {
     word = word.toLowerCase();
     let node = this.root;
     for (const char of word) {
-      const child = node.children[char];
       if (!node.children[char]) {
         return false;
       }
@@ -40,7 +56,7 @@ class Trie {
 
   static fromJSON(json) {
     const trie = new Trie();
-    trie.root = JSON.parse(json);
+    trie.root = TrieNode.fromJSON(JSON.parse(json));
     return trie;
   }
 }

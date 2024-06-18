@@ -35,7 +35,7 @@ class Game {
   }
 
   async validateWord(x, y, word) {
-    const trie = await this.initializeTrie();
+    const trie = this.board.validWords;
     const isValid = trie.contains(word);
     return isValid;
   }

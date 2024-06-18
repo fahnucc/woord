@@ -59,6 +59,9 @@ class Room {
     this.game = new Game({
       players: this.users.map((user) => new Player(user)),
     });
+
+    await this.game.board.populateValidWords();
+
     this.status = RoomStatus.IN_GAME;
   }
 
