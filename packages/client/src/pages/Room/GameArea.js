@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { guessWord } from "../../redux/gameSlice";
 import { useSocket } from "../../contexts/SocketContext";
 import Layout from "../../layout/Layout";
 import Board from "./Board";
@@ -10,12 +12,14 @@ const GameArea = () => {
   const user = useSelector((state) => state.user);
   const game = useSelector((state) => state.game);
   const { emit } = useSocket();
+  const dispatch = useDispatch();
   const [selectedWord, setSelectedWord] = useState("");
 
   const handleWordSelect = useCallback(
     (word, x, y) => {
       setSelectedWord(word);
       emit("find-word", { word, x, y });
+      dispatch(guessWord({ word }));
     },
     [emit]
   );

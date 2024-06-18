@@ -28,7 +28,7 @@ const gameSlice = createSlice({
       state.timer = timer;
     },
     guessWord(state, action) {
-      state.lastWord.word = action.payload;
+      state.lastWord.word = action.payload.word;
       state.lastWord.valid = GuessResult.PENDING;
     },
     validWord(state) {
