@@ -11,7 +11,7 @@ class Board {
         .map(() => Array(size).fill(null));
     this.validWords = validWords || new Trie();
 
-    this.initBoard();
+    if (!grid) this.initBoard();
   }
 
   initBoard() {
