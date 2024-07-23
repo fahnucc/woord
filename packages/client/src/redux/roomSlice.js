@@ -4,7 +4,7 @@ const initialState = {
   id: null,
   users: [],
   roomName: null,
-  isAllReady: false,
+  isAllReady: true,
 };
 
 export const roomSlice = createSlice({
@@ -15,7 +15,9 @@ export const roomSlice = createSlice({
       state.id = action.payload.id;
       state.users = action.payload.users;
       state.roomName = action.payload.roomName;
-      state.isAllReady = action.payload.users.every((user) => user.ready);
+      state.isAllReady = action.payload.users.every(
+        (user) => user.ready || user.isHost
+      );
     },
     leaveRoom(state) {
       state.id = null;
