@@ -17,6 +17,11 @@ class Player {
     this.score += points;
   }
 
+  onWordFound(word) {
+    this.foundWords.push(word);
+    this.score += word.length;
+  }
+
   toJSON() {
     return {
       id: this.id,

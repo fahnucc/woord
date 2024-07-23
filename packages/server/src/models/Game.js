@@ -26,10 +26,12 @@ class Game {
     const player = this.players.find((p) => p.id === playerId);
     if (!player) return false;
 
+    if (player.foundWords.includes(word)) return false;
+
     const valid = await this.validateWord(x, y, word);
     if (!valid) return false;
 
-    player.addScore(word.length);
+    player.onWordFound(word);
 
     return true;
   }
