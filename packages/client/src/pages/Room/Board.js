@@ -54,7 +54,7 @@ const Board = ({ board, onWordChange, onWordSelect }) => {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <div className="grid grid-cols-4 gap-2 w-80 h-80 bg-gray-300 p-4 rounded-lg">
+      <div className="grid grid-cols-4 gap-4 w-80 h-80 bg-gray-300 p-4 rounded-lg">
         {board.map((row, rowIndex) =>
           row.map((letter, colIndex) => (
             <Letter
