@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Letter from "./Letter";
 
 const Board = ({ board, onWordChange, onWordSelect }) => {
   const [selectedLetters, setSelectedLetters] = useState([]);
@@ -56,22 +57,15 @@ const Board = ({ board, onWordChange, onWordSelect }) => {
       <div className="grid grid-cols-4 gap-2 w-80 h-80 bg-gray-300 p-4 rounded-lg">
         {board.map((row, rowIndex) =>
           row.map((letter, colIndex) => (
-            <div
+            <Letter
               key={`${rowIndex}-${colIndex}`}
-              className={`flex items-center justify-center bg-white border border-gray-400 rounded-lg ${
-                selectedLetters.some(
-                  (sl) => sl.row === rowIndex && sl.col === colIndex
-                )
-                  ? "bg-yellow-300"
-                  : ""
-              }`}
+              letter={letter}
+              isSelected={selectedLetters.some(
+                (sl) => sl.row === rowIndex && sl.col === colIndex
+              )}
               onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
               onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
-            >
-              <div className="flex items-center justify-center w-12 h-12 border border-gray-300 rounded-md select-none">
-                {letter}
-              </div>
-            </div>
+            />
           ))
         )}
       </div>
