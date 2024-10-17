@@ -1,5 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
+import StarIcon from "@mui/icons-material/Star";
+import PersonIcon from "@mui/icons-material/Person";
 import { useSocket } from "../../contexts/SocketContext";
 import Layout from "../../layout/Layout";
 
@@ -26,17 +28,21 @@ const Lobby = () => {
   return (
     <Layout>
       <div className="grid grid-cols-4 h-full">
-        <div className="col-span-1 bg-gray-100 p-4 flex flex-col gap-2">
+        <div className="col-span-1 bg-gray-100 p-4 flex flex-col gap-2 rounded-l-lg">
           {room.users?.map((player, index) => (
             <div
-              className="bg-purple-300 flex justify-center items-center"
+              className="bg-purple-200 flex p-4 items-center h-12 rounded-2xl border-4 border-purple-600"
               key={`player-${index}`}
             >
               <div>{player.username}</div>
+              <div className="ml-auto flex justify-center items-center gap-1">
+                {user.id === player.id && <PersonIcon />}
+                {player.isHost && <StarIcon className="text-yellow-600" />}
+              </div>
             </div>
           ))}
         </div>
-        <div className="col-span-3 bg-gray-200 px-4 flex flex-col">
+        <div className="col-span-3 bg-gray-200 px-4 flex flex-col rounded-r-lg">
           <h1 className="text-2xl font-bold mb-4">{room.name}</h1>
           <p>Room ID: {room.id}</p>
           <p>Players: {room.users.length}</p>

@@ -1,17 +1,13 @@
-import Navbar from "./Navbar";
-import Aside from "./Aside";
-
-const Layout = ({ children, asideChildren }) => {
+const Layout = ({ children }) => {
   return (
-    <div className="grid grid-cols-12 w-full h-screen gap-4 bg-purple-300 px-4">
-      <Navbar />
-      <div
-        id="content"
-        className="col-span-8 p-4 bg-blue-300 h-[calc(100vh-5rem)]"
-      >
-        {children}
+    <div className="flex flex-col h-screen w-full bg-purple-300">
+      <div className="flex flex-1">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-blue-300 p-4 w-full max-w-4xl h-full max-h-[calc(100vh-5rem)] overflow-auto rounded-3xl">
+            {children}
+          </div>
+        </div>
       </div>
-      <Aside>{asideChildren}</Aside>
     </div>
   );
 };

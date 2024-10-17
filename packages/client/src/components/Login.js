@@ -25,20 +25,19 @@ function Login() {
   };
 
   return (
-    <div className="w-1/2 mx-auto h-full grid grid-rows-3">
-      <div className="row-span-1 bg-red-100 p-4 flex flex-col gap-2"></div>
-      <div className="row-span-1 bg-blue-100 p-4 flex flex-col gap-2">
+    <div className="w-1/2 mx-auto my-auto grid grid-rows-3">
+      <div className="row-span-1 bg-blue-100 p-4 flex flex-col gap-2 rounded-lg">
         <input
           type="text"
-          placeholder=""
+          placeholder="your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="bg-blue-400 p-2 h-24 focus:outline-none w-40 mx-auto text-3xl text-center underline"
+          className="bg-blue-400 p-2 h-18 focus:outline-none w-full mx-auto text-3xl text-center underline placeholder-blue-800 rounded-lg"
           autoFocus
         />
-      </div>
-      <div className="row-span-1 bg-green-100 p-4 my-auto font-semibold text-xl flex flex-col gap-2">
-        <button onClick={handleLogin}>Login</button>
+        <div className="row-span-1 bg-green-300 p-2 h-18 my-auto font-semibold text-xl flex flex-col rounded-lg">
+          <button onClick={handleLogin}>Login</button>
+        </div>
       </div>
     </div>
   );

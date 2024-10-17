@@ -28,7 +28,10 @@ const Home = () => {
           <RoomList />
         </div>
       ) : (
-        <Login />
+        <React.Fragment>
+          <div className="text-center text-5xl my-4">Woord</div>
+          <Login />
+        </React.Fragment>
       )}
     </Layout>
   );

@@ -29,6 +29,9 @@ const RoomList = () => {
 
   useEffect(() => {
     fetchRooms();
+    const intervalId = setInterval(fetchRooms, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleJoinRoom = (roomId) => {
@@ -76,7 +79,7 @@ const RoomList = () => {
   };
 
   return (
-    <div className="bg-purple-600 h-[400px] w-full flex flex-col">
+    <div className="bg-purple-600 h-[400px] w-full flex flex-col rounded-lg">
       <div className="flex justify-between items-center gap-4 p-5 text-white">
         <h2 className="text-lg font-bold">Rooms</h2>
         <div className="flex justify-end gap-4">
