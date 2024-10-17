@@ -48,33 +48,31 @@ router.post("/create-room", async (req, res) => {
 });
 
 router.post("/join-room", async (req, res) => {
-  try {
-    const { roomId, username } = req.body;
-    if (!roomId || !username) {
-      return res
-        .status(400)
-        .json(new BaseResponse(false, "Room ID and username are required"));
-    }
-
-    const user = await redisClient.getUser(username);
-    if (!user) {
-      return res.status(404).json(new BaseResponse(false, "User not found"));
-    }
-    const room = await redisClient.getRoom(roomId);
-    if (!room) {
-      return res.status(404).json(new BaseResponse(false, "Room not found"));
-    }
-
-    user.isHost = false;
-    room.connectUser(user);
-    await room.save();
-
-    res.json(
-      new BaseResponse(true, "Player joined room successfully", room.toJSON())
-    );
-  } catch (error) {
-    res.status(500).json(new BaseResponse(false, "An error occurred"));
+  const { roomId, username } = req.body;
+  const user = await redisClient.getUser(username);
+  if (!user) {
+    return res.status(404).json(new BaseResponse(false, "User not found"));
   }
+
+  const room = await redisClient.getRoom(roomId);
+  if (!room) {
+    return res.status(404).json(new BaseResponse(false, "Room not found"));
+  }
+
+  const existingUser = room.getUser({ username });
+  if (existingUser && existingUser.isConnected) {
+    return res.json(
+      new BaseResponse(true, "User already in room", room.toJSON())
+    );
+  }
+
+  if (!existingUser) {
+    room.connectUser(new User({ username }));
+  }
+
+  res.json(
+    new BaseResponse(true, "Player joined room successfully", room.toJSON())
+  );
 });
 
 router.get("/room/:id", async (req, res) => {

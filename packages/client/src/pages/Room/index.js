@@ -23,7 +23,7 @@ const Room = () => {
   }, []);
 
   useEffect(() => {
-    if (!room.id && user.id) {
+    if (id && user.id) {
       connect(id, user.username);
     }
   }, [room, user, id]);

@@ -25,6 +25,9 @@ export const SocketProvider = ({ children }) => {
       const _socket = io(URL, {
         query: { roomId, username: user.username },
         autoConnect: false,
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 5000,
       });
       _socket.connect();
 

@@ -7,6 +7,7 @@ class User {
     username,
     isHost = false,
     isReady = false,
+    isConnected = false,
     createdAt = new Date(),
     numberOfRoomsCreated = 0,
   }) {
@@ -14,6 +15,7 @@ class User {
     this.username = username;
     this.isHost = isHost;
     this.isReady = isReady;
+    this.isConnected = isConnected;
     this.createdAt = createdAt;
     this.numberOfRoomsCreated = numberOfRoomsCreated;
     this.save();
@@ -34,6 +36,7 @@ class User {
       username: this.username,
       isHost: this.isHost,
       isReady: this.isReady,
+      isConnected: this.isConnected,
       createdAt: this.createdAt,
       numberOfRoomsCreated: this.numberOfRoomsCreated,
     };

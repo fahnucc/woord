@@ -16,17 +16,16 @@ export const initializeSocket = (server) => {
     socket.roomId = roomId;
 
     socket.on("join-room", async () => {
-      socket.roomId = roomId;
-      socket.join(socket.roomId);
-
-      const room = await redisClient.getRoom(socket.roomId);
+      socket.join(roomId);
+      const room = await redisClient.getRoom(roomId);
       if (!room) return;
 
-      console.log(
-        `JOİN: User [${socket.username}] joined to [${socket.roomId}]`
-      );
+      const user = room.getUser({ username });
+      user.isConnected = true;
+      await room.save();
 
-      io.to(socket.roomId).emit("update-room", { room });
+      io.to(roomId).emit("update-room", { room });
+      console.log(`JOIN: User [${username}] joined to [${roomId}]`);
     });
 
     socket.on("set-ready", async (data) => {
@@ -88,15 +87,11 @@ export const initializeSocket = (server) => {
 
     socket.on("disconnect", async () => {
       const room = await redisClient.getRoom(socket.roomId);
-      if (!room) return;
-      await room.disconnectUserByUsername(socket.username);
-
-      console.log(
-        `LEAVE: User [${socket.username}] disconnected from [${socket.roomId}]`
-      );
-
-      io.to(socket.roomId).emit("update-room", { room });
-      socket.leave(socket.roomId);
+      if (room) {
+        room.disconnectUserByUsername(socket.username);
+        await room.save();
+        io.to(socket.roomId).emit("update-room", { room });
+      }
     });
   });
 };

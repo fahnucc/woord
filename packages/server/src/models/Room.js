@@ -28,30 +28,20 @@ class Room {
   }
 
   async connectUser(user) {
-    this.users.push(user);
+    const existingUser = this.getUser({ username: user.username });
+    if (!existingUser) {
+      this.users.push(user);
+    } else {
+      existingUser.isConnected = false;
+    }
     await this.save();
   }
 
-  async disconnectUser(user) {
-    if (user.isHost) {
-      if (this.users.length > 1) {
-        this.users[1].isHost = true;
-      } else {
-        return await redisClient.deleteRoom(this.id);
-      }
-    }
-
-    const index = this.users.indexOf(user);
-    if (index > -1) {
-      this.users.splice(index, 1);
-      await this.save();
-    }
-  }
-
   async disconnectUserByUsername(username) {
-    const user = this.users.find((user) => user.username === username);
+    const user = this.users.find((u) => u.username === username);
     if (user) {
-      await this.disconnectUser(user);
+      user.isConnected = false;
+      await this.save();
     }
   }
 
