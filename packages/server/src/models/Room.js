@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import redisClient from "../RedisClient.js";
 import User from "./User.js";
 import Game from "./Game.js";
+import Board from "./Board.js";
 import Player from "./Player.js";
 import { RoomStatus } from "../enums/index.js";
 
@@ -46,11 +47,17 @@ class Room {
   }
 
   async startGame() {
+    const validBoards = await redisClient.getValidBoards();
+    // const index = Math.floor(Math.random() * validBoards.length);
+    const index = 0;
+    const board = validBoards[index];
+
     this.game = new Game({
       players: this.users.map((user) => new Player(user)),
+      board: new Board(board.size, board.grid),
     });
 
-    await this.game.board.populateValidWords();
+    await this.game.board.findValidWords();
 
     this.status = RoomStatus.IN_GAME;
   }

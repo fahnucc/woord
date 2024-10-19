@@ -37,7 +37,7 @@ class Game {
   }
 
   async validateWord(x, y, word) {
-    const trie = this.board.validWords;
+    const trie = this.board.validWordTrie;
     const isValid = trie.contains(word);
     return isValid;
   }
@@ -47,7 +47,7 @@ class Game {
 
     if (trie === null) {
       trie = new Trie();
-      const filePath = path.resolve("./src/words/sowpods.json");
+      const filePath = path.resolve("./src/words/wordlist.json");
       const wordSet = loadWordsFromJson(filePath);
       addWordsToTrie(wordSet, trie);
       await redisClient.setTrie(trie);

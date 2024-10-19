@@ -2,14 +2,15 @@ import Trie from "./Trie.js";
 import redisClient from "../RedisClient.js";
 
 class Board {
-  constructor(size = 4, grid = null, validWords = null) {
+  constructor(size = 4, grid = null, validWordTrie = null) {
     this.size = size;
     this.grid =
       grid ||
       Array(size)
         .fill(null)
         .map(() => Array(size).fill(null));
-    this.validWords = validWords || new Trie();
+    this.validWordTrie = validWordTrie || new Trie();
+    this.validWords = new Set();
 
     if (!grid) this.initBoard();
   }
@@ -53,7 +54,7 @@ class Board {
     }
   }
 
-  async populateValidWords() {
+  async findValidWords() {
     const now = new Date();
     const directions = [
       [-1, -1],
@@ -70,6 +71,7 @@ class Board {
     );
 
     let totalWords = 0;
+    this.validWords = [];
 
     const dfs = (x, y, path, node) => {
       if (x < 0 || x >= this.size || y < 0 || y >= this.size || visited[x][y])
@@ -80,8 +82,9 @@ class Board {
 
       visited[x][y] = true;
       node = node.getChildNode(char);
-      if (node.isEndOfWord) {
-        this.validWords.insert(currentPath);
+      if (node.isEndOfWord && currentPath.length >= 3) {
+        this.validWordTrie.insert(currentPath);
+        this.validWords.push(currentPath);
         totalWords++;
       }
 
@@ -104,6 +107,70 @@ class Board {
     );
   }
 
+  async populateValidWords(trie, validCount = 500) {
+    const now = new Date();
+    const directions = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+    const visited = Array.from({ length: this.size }, () =>
+      Array(this.size).fill(false)
+    );
+    let foundWords = new Set();
+
+    const dfs = (x, y, path, node) => {
+      if (
+        x < 0 ||
+        x >= this.size ||
+        y < 0 ||
+        y >= this.size ||
+        visited[x][y] ||
+        !node
+      )
+        return;
+      visited[x][y] = true;
+      path += this.grid[x][y].toLowerCase();
+
+      if (node.isEndOfWord && path.length >= 3) {
+        foundWords.add(path);
+      }
+
+      for (const [dx, dy] of directions) {
+        const nx = x + dx,
+          ny = y + dy;
+        if (
+          nx >= 0 &&
+          nx < this.size &&
+          ny >= 0 &&
+          ny < this.size &&
+          !visited[nx][ny]
+        ) {
+          const nextChar = this.grid[nx][ny].toLowerCase();
+          if (node.children[nextChar]) {
+            dfs(nx, ny, path, node.children[nextChar]);
+          }
+        }
+      }
+      visited[x][y] = false;
+    };
+
+    for (let i = 0; i < this.size; i++) {
+      for (let j = 0; j < this.size; j++) {
+        const startChar = this.grid[i][j].toLowerCase();
+        if (trie.root.children[startChar]) {
+          dfs(i, j, "", trie.root.children[startChar]);
+        }
+      }
+    }
+    return foundWords.size >= validCount;
+  }
+
   createLetterPool(frequencyDict) {
     let letterPool = [];
     for (const [letter, frequency] of Object.entries(frequencyDict)) {
@@ -124,7 +191,7 @@ class Board {
     const board = new Board(
       jsonData.size,
       jsonData.grid,
-      Trie.fromJSON(jsonData.validWords)
+      Trie.fromJSON(jsonData.validWordTrie)
     );
     return board;
   }
@@ -133,7 +200,7 @@ class Board {
     return {
       size: this.size,
       grid: this.grid,
-      validWords: this.validWords.toJSON(),
+      validWordTrie: this.validWordTrie.toJSON(),
     };
   }
 }

@@ -114,6 +114,21 @@ class RedisClient {
       return null;
     }
   }
+
+  async saveValidBoards(boards) {
+    await this.client.set("validBoards", JSON.stringify(boards));
+  }
+
+  async getValidBoards() {
+    const boards = await this.client.get("validBoards");
+    return JSON.parse(boards);
+  }
+
+  async getRandomValidBoard() {
+    const validBoards = await this.getValidBoards();
+    const randomIndex = Math.floor(Math.random() * validBoards.length);
+    return validBoards[randomIndex];
+  }
 }
 
 const redisClient = new RedisClient();
