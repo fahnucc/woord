@@ -1,6 +1,5 @@
 import { Server as SocketIOServer } from "socket.io";
 import redisClient from "../RedisClient.js";
-import { GameStatus } from "../enums/index.js";
 
 export const initializeSocket = (server) => {
   const io = new SocketIOServer(server, {
@@ -59,7 +58,7 @@ export const initializeSocket = (server) => {
     });
 
     socket.on("find-word", async (data) => {
-      const { word, x, y } = data;
+      const { word, row, col } = data;
       const room = await redisClient.getRoom(socket.roomId);
 
       if (!room || !room.game) return;
@@ -69,7 +68,7 @@ export const initializeSocket = (server) => {
 
       if (!player) return;
 
-      const valid = await game.guessWord(player.id, x, y, word);
+      const valid = await game.guessWord(player.id, word, row, col);
       if (valid) {
         io.to(socket.roomId).emit("update-game", { game });
         socket.emit("valid-word");

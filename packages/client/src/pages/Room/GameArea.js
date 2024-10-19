@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import { guessWord } from "../../redux/gameSlice";
 import { useSocket } from "../../contexts/SocketContext";
 import Layout from "../../layout/Layout";
-import Board from "./Board";
-import Guess from "./Guess";
+import GameBoard from "../../components/three/GameBoard";
 
 const GameArea = () => {
   const room = useSelector((state) => state.room);
@@ -13,12 +12,10 @@ const GameArea = () => {
   const game = useSelector((state) => state.game);
   const { emit } = useSocket();
   const dispatch = useDispatch();
-  const [selectedWord, setSelectedWord] = useState("");
 
   const handleWordSelect = useCallback(
-    (word, x, y) => {
-      setSelectedWord(word);
-      emit("find-word", { word, x, y });
+    (word, row, col) => {
+      emit("find-word", { word, row, col });
       dispatch(guessWord({ word }));
     },
     [emit]
@@ -44,11 +41,9 @@ const GameArea = () => {
             </div>
           ))}
         </div>
-        <div className="col-span-3 bg-gray-200 px-4 flex flex-col justify-center items-center">
-          <Guess word={selectedWord} valid={game.lastWord.valid} />
-          <Board
-            board={game.board.grid}
-            onWordChange={setSelectedWord}
+        <div className="col-span-3 bg-gray-200 flex flex-col justify-center items-center">
+          <GameBoard
+            board={game.board.grid.flat()}
             onWordSelect={handleWordSelect}
           />
         </div>

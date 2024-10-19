@@ -22,13 +22,13 @@ class Game {
     this.timer = timer;
   }
 
-  async guessWord(playerId, x, y, word) {
+  async guessWord(playerId, word, row, col) {
     const player = this.players.find((p) => p.id === playerId);
     if (!player) return false;
 
     if (player.foundWords.includes(word)) return false;
 
-    const valid = await this.validateWord(x, y, word);
+    const valid = await this.validateWord(word, row, col);
     if (!valid) return false;
 
     player.onWordFound(word);
@@ -36,7 +36,7 @@ class Game {
     return true;
   }
 
-  async validateWord(x, y, word) {
+  async validateWord(word, row, col) {
     const trie = this.board.validWordTrie;
     const isValid = trie.contains(word);
     return isValid;
