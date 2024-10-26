@@ -17,7 +17,6 @@ const RoomList = () => {
   const fetchRooms = () => {
     Request.get("/api/rooms")
       .then((data) => {
-        console.log(data);
         if (data.success) {
           setRooms(data.data);
         }

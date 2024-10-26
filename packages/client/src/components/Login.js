@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
+import { createRandomUsername } from "../utils/user";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
 
-function Login() {
+const Login = ({ loginNeeded, setLoginNeeded }) => {
   const [username, setUsername] = useState("");
+  const [placeholder, setPlaceholder] = useState(createRandomUsername());
+  const [animate, setAnimate] = useState(false);
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
@@ -14,7 +18,7 @@ function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username: username || placeholder }),
       }
     );
 
@@ -24,23 +28,47 @@ function Login() {
     }
   };
 
+  useEffect(() => {
+    if (loginNeeded) {
+      setAnimate(true);
+      const timeout = setTimeout(() => {
+        setAnimate(false);
+        setLoginNeeded(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [loginNeeded]);
+
   return (
-    <div className="w-1/2 mx-auto my-auto grid grid-rows-3">
-      <div className="row-span-1 bg-blue-100 p-4 flex flex-col gap-2 rounded-lg">
-        <input
-          type="text"
-          placeholder="your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="bg-blue-400 p-2 h-18 focus:outline-none w-full mx-auto text-3xl text-center underline placeholder-blue-800 rounded-lg"
-          autoFocus
-        />
-        <div className="row-span-1 bg-green-300 p-2 h-18 my-auto font-semibold text-xl flex flex-col rounded-lg">
-          <button onClick={handleLogin}>Login</button>
+    <div className="w-72 mx-auto h-full">
+      <div className="grid grid-rows-2 bg-blue-100 p-4 flex flex-col gap-2 rounded-lg relative">
+        <div className="flex items-center row-span-1">
+          <input
+            type="text"
+            placeholder={placeholder}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="bg-blue-400 p-2 h-18 focus:outline-none w-full text-xl text-center placeholder:opacity-30 placeholder:text-black rounded-lg"
+            autoFocus
+          />
+          <button
+            className="ml-2 h-full px-2 bg-blue-400 rounded-lg"
+            onClick={() => setPlaceholder(createRandomUsername())}
+          >
+            <ShuffleIcon className="h-8 w-8" />
+          </button>
         </div>
+        <button
+          onClick={handleLogin}
+          className={`row-span-1 bg-green-300 p-2 h-18 my-auto text-xl flex flex-col rounded-lg justify-center items-center transition-all duration-500 ${
+            animate ? "animate-shake bg-red-500" : ""
+          }`}
+        >
+          Log in
+        </button>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

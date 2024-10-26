@@ -9,7 +9,7 @@ import { Canvas } from "@react-three/fiber";
 import Cube from "./Cube";
 import { createCubesPositionsAndLetters } from "../../utils/boardUtils";
 
-const GameBoard = ({ board, onWordSelect }) => {
+const GameBoard = ({ board, onWordSelect, scale = [1, 1, 1] }) => {
   const [selectedLetters, setSelectedLetters] = useState([]);
   const [isMouseDown, setIsMouseDown] = useState(false);
 
@@ -76,9 +76,9 @@ const GameBoard = ({ board, onWordSelect }) => {
         position={[0, 15, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[0, 10, 5]} intensity={1} />
-      <group>
+      <ambientLight intensity={2} />
+      <directionalLight position={[0, 15, 0]} intensity={2} />
+      <group scale={scale}>
         {cubes.map((cube, idx) => (
           <Cube
             key={idx}

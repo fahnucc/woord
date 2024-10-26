@@ -1,18 +1,7 @@
 import React from "react";
 import { Text } from "@react-three/drei";
 import { useSpring, animated } from "@react-spring/three";
-
-function getRotateDirection(id, selectedLetters) {
-  const selectedLetterIndex = selectedLetters.findIndex((sl) => sl.id === id);
-  const nextSelectedLetter = selectedLetters[selectedLetterIndex + 1];
-
-  const right = nextSelectedLetter?.id % 4 > id % 4;
-  const left = nextSelectedLetter?.id % 4 < id % 4;
-  const down = nextSelectedLetter?.id >= id + 2;
-  const up = nextSelectedLetter?.id <= id - 2;
-
-  return { up, down, left, right };
-}
+import { getRotateDirection } from "../../utils/boardUtils";
 
 const Cube = ({
   id,
