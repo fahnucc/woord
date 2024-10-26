@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import Layout from "../layout/Layout";
 import Login from "../components/Login";
-import Logo from "../components/Logo";
 import HomeBoard from "../components/three/HomeBoard";
 
 const Home = () => {
@@ -37,9 +36,6 @@ const Home = () => {
 
   return (
     <Layout>
-      <Logo className="text-purple-300 sm:w-96 w-72 h-max" />
-      the #1 word search game
-      <hr className="border-t-4 border-purple-300 w-full" />
       <HomeBoard scale={1.8} onWordClick={handleWordClick} />
       <div className="flex flex-col gap-4 h-64">
         {user.id ? (
