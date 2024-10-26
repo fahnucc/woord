@@ -3,8 +3,9 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { guessWord } from "../../redux/gameSlice";
 import { useSocket } from "../../contexts/SocketContext";
-import Layout from "../../layout/Layout";
 import GameBoard from "../../components/three/GameBoard";
+import LeftSidebar from "../../components/game/LeftSidebar";
+import GameLayout from "../../layout/GameLayout";
 
 const GameArea = () => {
   const room = useSelector((state) => state.room);
@@ -25,30 +26,18 @@ const GameArea = () => {
     (gamePlayer) => gamePlayer.username === user?.username
   );
 
-  if (!room || !player) return <Layout>Loading...</Layout>;
+  if (!room || !player) return <GameLayout>Loading...</GameLayout>;
 
   return (
-    <Layout>
-      <div className="grid grid-cols-4 h-full">
-        <div className="col-span-1 bg-gray-100 p-4 flex flex-col gap-2">
-          {game.players?.map((player, index) => (
-            <div
-              className="bg-purple-300 flex justify-between px-4 py-2 border border-purple-600 rounded-2xl items-center"
-              key={`player-${index}`}
-            >
-              <div>{player.username}</div>
-              <div>{player.score}</div>
-            </div>
-          ))}
-        </div>
-        <div className="col-span-3 bg-gray-200 flex flex-col justify-center items-center">
-          <GameBoard
-            board={game.board.grid.flat()}
-            onWordSelect={handleWordSelect}
-          />
-        </div>
+    <GameLayout leftSidebar={<LeftSidebar players={game?.players} />}>
+      <div className="rounded-lg p-4 bg-blue-300 w-full h-full">
+        <GameBoard
+          board={game.board.grid.flat()}
+          onWordSelect={handleWordSelect}
+          scale={1.25}
+        />
       </div>
-    </Layout>
+    </GameLayout>
   );
 };
 

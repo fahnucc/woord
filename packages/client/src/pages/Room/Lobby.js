@@ -27,7 +27,7 @@ const Lobby = () => {
 
   return (
     <Layout>
-      <div className="grid grid-cols-4 h-full">
+      <div className="grid grid-cols-4 h-full w-full">
         <div className="col-span-1 bg-gray-100 p-4 flex flex-col gap-2 rounded-l-lg">
           {room.users?.map((player, index) => (
             <div

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { leaveRoom } from "../redux/roomSlice";
+import { resetGame } from "../redux/gameSlice";
+import Request from "../utils/Request";
+import { RoomStatusReverse } from "../enums";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Request from "../utils/Request";
-import { leaveRoom } from "../redux/roomSlice";
-import { resetGame } from "../redux/gameSlice";
 
 const RoomList = () => {
   const user = useSelector((state) => state.user);
@@ -17,6 +18,7 @@ const RoomList = () => {
   const fetchRooms = () => {
     Request.get("/api/rooms")
       .then((data) => {
+        console.log(data);
         if (data.success) {
           setRooms(data.data);
         }
@@ -78,51 +80,62 @@ const RoomList = () => {
   };
 
   return (
-    <div className="bg-purple-600 h-[400px] w-full flex flex-col rounded-lg">
-      <div className="flex justify-between items-center gap-4 p-5 text-white">
-        <h2 className="text-lg font-bold">Rooms</h2>
-        <div className="flex justify-end gap-4">
+    <div className="h-full w-full bg-purple-600 grid grid-cols-12 gap-4 rounded-lg">
+      <div className="col-span-10 overflow-auto p-4 pr-0 flex flex-col">
+        <div className="w-full h-full border border-purple-900 bg-purple-400">
+          <table className="w-full table-fixed">
+            <thead className="bg-purple-800 text-white">
+              <tr>
+                <th className="p-4 border border-purple-900 w-3/5">
+                  Room Name
+                </th>
+                <th className="p-4 border border-purple-900 w-1/5">Players</th>
+                <th className="p-4 border border-purple-900 w-1/5">Status</th>
+              </tr>
+            </thead>
+            <tbody className="flex-1 overflow-y-auto">
+              {rooms.map((room, index) => (
+                <tr
+                  key={index}
+                  onClick={() => handleJoinRoom(room.id)}
+                  className="hover:bg-purple-500 cursor-pointer text-white h-10"
+                >
+                  <td className="py-3 px-4 border border-purple-900 border-l-0">
+                    {room.roomName}
+                  </td>
+                  <td className="p-3 border border-purple-900 text-center">
+                    {room.users.length}
+                  </td>
+                  <td className="p-3 border border-purple-900 border-r-0 text-center">
+                    {RoomStatusReverse[room.status]}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="col-span-2 flex flex-col gap-4 p-4 border-l-4 border-blue-300">
+        {user.username === "faho" && (
           <button
             className="bg-red-600 hover:bg-red-900 text-white font-bold py-2 px-4 rounded"
             onClick={handleDeleteAllRooms}
           >
             <DeleteIcon />
           </button>
-          <button
-            className="bg-green-600 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded"
-            onClick={handleCreateRoom}
-          >
-            <AddIcon />
-          </button>
-          <button
-            className="bg-blue-600 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded"
-            onClick={fetchRooms}
-          >
-            <RefreshIcon />
-          </button>
-        </div>
-      </div>
-      <div className="flex-grow">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-white">
-              <th className="p-4">Room Name</th>
-              <th className="p-4">Players</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rooms.map((room, index) => (
-              <tr
-                key={index}
-                onClick={() => handleJoinRoom(room.id)}
-                className="hover:bg-purple-700 cursor-pointer"
-              >
-                <td className="p-4">{room.roomName}</td>
-                <td className="p-4">{room.users.length}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        )}
+        <button
+          className="bg-green-600 hover:bg-green-900 text-white font-bold py-2 px-4 rounded"
+          onClick={handleCreateRoom}
+        >
+          <AddIcon />
+        </button>
+        <button
+          className="bg-blue-600 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded"
+          onClick={fetchRooms}
+        >
+          <RefreshIcon />
+        </button>
       </div>
     </div>
   );
